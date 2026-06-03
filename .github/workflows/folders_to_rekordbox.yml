@@ -131,7 +131,7 @@ jobs:
 
   publish-release:
     name: Publish GitHub Release
-    needs: build-windows
+    needs: [build-windows, build-macos-intel, build-macos-arm64]
     runs-on: ubuntu-latest
     steps:
       - name: Download Windows artifact
@@ -140,7 +140,22 @@ jobs:
           name: Folders-to-Rekordbox-windows
           path: release-assets
 
+      - name: Download macOS Intel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Folders-to-Rekordbox-macos-intel
+          path: release-assets
+
+      - name: Download macOS Apple Silicon artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Folders-to-Rekordbox-macos-arm64
+          path: release-assets
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: release-assets/Folders-to-Rekordbox-windows.zip
+          files: |
+            release-assets/Folders-to-Rekordbox-windows.zip
+            release-assets/Folders-to-Rekordbox-macos-intel.zip
+            release-assets/Folders-to-Rekordbox-macos-arm64.zip
