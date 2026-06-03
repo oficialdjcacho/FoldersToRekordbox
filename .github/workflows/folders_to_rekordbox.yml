@@ -1,0 +1,127 @@
+name: Build Folders to Rekordbox
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "folders-v*"
+
+jobs:
+  build-windows:
+    name: Windows EXE
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        working-directory: Pioneer_Sync
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Build
+        working-directory: Pioneer_Sync
+        shell: cmd
+        run: |
+          pyinstaller --noconfirm --clean --onefile --windowed ^
+            --name "Folders to Rekordbox" ^
+            --icon rekordbox.ico ^
+            --add-data "rekordbox.ico;." ^
+            --add-data "rekordbox.webp;." ^
+            folders_to_rekordbox_app.py
+
+      - name: Zip artifact
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "Pioneer_Sync/dist/Folders to Rekordbox.exe" -DestinationPath "Pioneer_Sync/dist/Folders-to-Rekordbox-windows.zip" -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Folders-to-Rekordbox-windows
+          path: Pioneer_Sync/dist/Folders-to-Rekordbox-windows.zip
+
+  build-macos-intel:
+    name: macOS Intel .app
+    runs-on: macos-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        working-directory: Pioneer_Sync
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Build
+        working-directory: Pioneer_Sync
+        run: |
+          pyinstaller --noconfirm --clean --windowed \
+            --name "Folders to Rekordbox" \
+            --icon rekordbox.ico \
+            --add-data "rekordbox.ico:." \
+            --add-data "rekordbox.webp:." \
+            folders_to_rekordbox_app.py
+
+      - name: Zip artifact
+        run: |
+          cd Pioneer_Sync/dist
+          zip -r Folders-to-Rekordbox-macos-intel.zip "Folders to Rekordbox.app"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Folders-to-Rekordbox-macos-intel
+          path: Pioneer_Sync/dist/Folders-to-Rekordbox-macos-intel.zip
+
+  build-macos-arm64:
+    name: macOS Apple Silicon .app
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        working-directory: Pioneer_Sync
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+
+      - name: Build
+        working-directory: Pioneer_Sync
+        run: |
+          pyinstaller --noconfirm --clean --windowed \
+            --name "Folders to Rekordbox" \
+            --target-architecture arm64 \
+            --icon rekordbox.ico \
+            --add-data "rekordbox.ico:." \
+            --add-data "rekordbox.webp:." \
+            folders_to_rekordbox_app.py
+
+      - name: Zip artifact
+        run: |
+          cd Pioneer_Sync/dist
+          zip -r Folders-to-Rekordbox-macos-arm64.zip "Folders to Rekordbox.app"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Folders-to-Rekordbox-macos-arm64
+          path: Pioneer_Sync/dist/Folders-to-Rekordbox-macos-arm64.zip
