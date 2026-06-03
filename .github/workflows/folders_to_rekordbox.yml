@@ -72,9 +72,7 @@ jobs:
         working-directory: Pioneer_Sync
         run: |
           pyinstaller --noconfirm --clean --windowed \
-            --name "Folders to Rekordbox" \
-            --icon rekordbox.ico \
-            --add-data "rekordbox.ico:." \
+            --name "Folders to Rekordbox" \            --add-data "rekordbox.ico:." \
             --add-data "rekordbox.webp:." \
             folders_to_rekordbox_app.py
 
@@ -112,9 +110,7 @@ jobs:
         run: |
           pyinstaller --noconfirm --clean --windowed \
             --name "Folders to Rekordbox" \
-            --target-architecture arm64 \
-            --icon rekordbox.ico \
-            --add-data "rekordbox.ico:." \
+            --target-architecture arm64 \            --add-data "rekordbox.ico:." \
             --add-data "rekordbox.webp:." \
             folders_to_rekordbox_app.py
 
@@ -159,4 +155,5 @@ jobs:
             release-assets/Folders-to-Rekordbox-windows.zip
             release-assets/Folders-to-Rekordbox-macos-intel.zip
             release-assets/Folders-to-Rekordbox-macos-arm64.zip
+
 
