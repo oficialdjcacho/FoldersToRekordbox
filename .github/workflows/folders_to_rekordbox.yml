@@ -6,6 +6,9 @@ on:
     tags:
       - "folders-v*"
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     name: Windows EXE
@@ -125,3 +128,19 @@ jobs:
         with:
           name: Folders-to-Rekordbox-macos-arm64
           path: Pioneer_Sync/dist/Folders-to-Rekordbox-macos-arm64.zip
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: build-windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Folders-to-Rekordbox-windows
+          path: release-assets
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/Folders-to-Rekordbox-windows.zip
