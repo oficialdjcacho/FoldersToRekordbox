@@ -13,6 +13,9 @@ jobs:
   build-windows:
     name: Windows EXE
     runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,6 +57,9 @@ jobs:
   build-macos-intel:
     name: macOS x86_64 .app
     runs-on: macos-13
+    timeout-minutes: 60
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -94,6 +100,9 @@ jobs:
   build-macos-arm64:
     name: macOS Apple Silicon .app
     runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
