@@ -42,6 +42,7 @@ jobs:
       - name: Zip artifact
         shell: pwsh
         run: |
+          if (!(Test-Path "Pioneer_Sync/dist/Folders to Rekordbox.exe")) { throw "Windows build did not produce the expected EXE." }
           Compress-Archive -Path "Pioneer_Sync/dist/Folders to Rekordbox.exe" -DestinationPath "Pioneer_Sync/dist/Folders-to-Rekordbox-windows.zip" -Force
 
       - name: Upload artifact
@@ -52,7 +53,7 @@ jobs:
 
   build-macos-intel:
     name: macOS x86_64 .app
-    runs-on: macos-14
+    runs-on: macos-13
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,10 +67,21 @@ jobs:
         working-directory: Pioneer_Sync
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt`r`n`r`n      - name: Build`r`n        working-directory: Pioneer_Sync`r`n        run: |`r`n          pyinstaller --noconfirm --clean --windowed \\`r`n            --name "Folders to Rekordbox" \\`r`n            --osx-bundle-identifier com.oficialdjcacho.folderstorekordbox \\`r`n            --add-data "rekordbox.webp:." \\`r`n            folders_to_rekordbox_app.py
+          python3 -m pip install -r requirements.txt
+
+      - name: Build
+        working-directory: Pioneer_Sync
+        run: |
+          pyinstaller --noconfirm --clean --windowed \
+            --name "Folders to Rekordbox" \
+            --target-architecture x86_64 \
+            --osx-bundle-identifier com.oficialdjcacho.folderstorekordbox \
+            --add-data "rekordbox.webp:." \
+            folders_to_rekordbox_app.py
 
       - name: Zip artifact
         run: |
+          test -d "Pioneer_Sync/dist/Folders to Rekordbox.app"
           cd Pioneer_Sync/dist
           zip -r Folders-to-Rekordbox-macos-intel.zip "Folders to Rekordbox.app"
 
@@ -103,12 +115,13 @@ jobs:
           pyinstaller --noconfirm --clean --windowed \
             --name "Folders to Rekordbox" \
             --target-architecture arm64 \
-            --icon rekordbox.icns \
+            --osx-bundle-identifier com.oficialdjcacho.folderstorekordbox \
             --add-data "rekordbox.webp:." \
             folders_to_rekordbox_app.py
 
       - name: Zip artifact
         run: |
+          test -d "Pioneer_Sync/dist/Folders to Rekordbox.app"
           cd Pioneer_Sync/dist
           zip -r Folders-to-Rekordbox-macos-arm64.zip "Folders to Rekordbox.app"
 
@@ -149,7 +162,3 @@ jobs:
             release-assets/Folders-to-Rekordbox-windows.zip
             release-assets/Folders-to-Rekordbox-macos-intel.zip
             release-assets/Folders-to-Rekordbox-macos-arm64.zip
-
-
-
-
