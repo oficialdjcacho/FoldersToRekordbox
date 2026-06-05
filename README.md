@@ -10,6 +10,8 @@ It scans a root music directory, mirrors the folder hierarchy into playlists, an
 
 - Mirrors folder structure into rekordbox playlists
 - Preserves nested folder hierarchy
+- Traverses the full folder tree, but only keeps branches that contain music
+- Creates playlists only for folders that contain audio files
 - Reads basic audio metadata with `tinytag`
 - Exports a rekordbox-compatible XML file
 - Includes a dark UI with automatic language detection on Windows
@@ -52,8 +54,7 @@ The repository includes a workflow at:
 
 It builds:
 - Windows `.exe`
-- macOS Intel `.app`
-- macOS Apple Silicon `.app`
+- macOS universal2 `.app`
 
 Trigger it manually or push a tag matching:
 
@@ -77,4 +78,3 @@ Pioneer_Sync/
 ## License
 
 This project is released under the MIT License. See `LICENSE`.
-
