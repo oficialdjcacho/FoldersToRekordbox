@@ -107,10 +107,22 @@ def build_playlist_tree(tracks_root: Path, collection_name: str, progress_callba
         folder = track_path.parent
         tracks_by_folder.setdefault(folder, []).append(track_path)
 
+    relevant_folders: set[Path] = set()
+    for folder in sorted({track.parent for track in track_paths}, key=lambda p: len(p.parts), reverse=True):
+        current_folder = folder
+        while True:
+            if current_folder in relevant_folders:
+                break
+            relevant_folders.add(current_folder)
+            if current_folder == tracks_root:
+                break
+            current_folder = current_folder.parent
+
     return {
         "collection_name": collection_name,
         "root": tracks_root,
         "folders": tracks_by_folder,
+        "relevant_folders": relevant_folders,
         "tracks": track_paths,
     }
 
@@ -175,9 +187,11 @@ def create_rekordbox_xml(tracks_root: Path, output_file: Path, collection_name: 
     playlists = ET.SubElement(root, "PLAYLISTS")
     root_node = ET.SubElement(playlists, "NODE", Type="0", Name="ROOT")
 
-    folders_sorted = sorted(data["folders"].keys(), key=lambda p: (len(p.relative_to(tracks_root).parts), str(p).lower()))
-    nodes_by_folder: dict[Path, ET.Element] = {}
-    nodes_by_folder[tracks_root] = root_node
+    folders_sorted = sorted(
+        data["relevant_folders"],
+        key=lambda p: (len(p.relative_to(tracks_root).parts), str(p).lower()),
+    )
+    nodes_by_folder: dict[Path, ET.Element] = {tracks_root: root_node}
 
     def add_folder_chain(folder_path: Path) -> ET.Element:
         current_path = tracks_root
@@ -189,14 +203,19 @@ def create_rekordbox_xml(tracks_root: Path, output_file: Path, collection_name: 
             current_node = nodes_by_folder[current_path]
         return current_node
 
-    playlist_nodes: list[ET.Element] = []
-
     for folder in folders_sorted:
-        parent_node = add_folder_chain(folder.parent if folder != tracks_root else tracks_root)
-        playlist_node = ET.SubElement(parent_node, "NODE", Type="1", Name=folder.name, Entries=str(len(data["folders"][folder])), KeyType="0")
-        for track_path in sorted(data["folders"][folder]):
-            ET.SubElement(playlist_node, "TRACK", Key=str(track_id_map[track_path]))
-        playlist_nodes.append(playlist_node)
+        folder_node = add_folder_chain(folder)
+        if folder in data["folders"]:
+            playlist_node = ET.SubElement(
+                folder_node,
+                "NODE",
+                Type="1",
+                Name=folder.name,
+                Entries=str(len(data["folders"][folder])),
+                KeyType="0",
+            )
+            for track_path in sorted(data["folders"][folder]):
+                ET.SubElement(playlist_node, "TRACK", Key=str(track_id_map[track_path]))
 
     def count_nodes(node: ET.Element) -> int:
         return sum(1 for child in node if child.tag == "NODE")
